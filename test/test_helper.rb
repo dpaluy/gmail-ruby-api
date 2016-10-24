@@ -26,7 +26,8 @@ class Test::Unit::TestCase
   setup do
     @mock = mock
     Gmail.client = @mock
-    Gmail.new(client_id: "foo", client_secret: "foo", refresh_token: "foo", application_name: "test", application_version: "test")
+    #Gmail.new(client_id: "foo", client_secret: "foo", refresh_token: "foo", application_name: "test", application_version: "test")
+    Gmail.new(client_id: "foo", client_secret: "foo", refresh_token: "foo")
   end
 
   teardown do
