@@ -6,7 +6,7 @@ module Gmail
 
     should "Draft should be retrievable by id" do
 
-      @mock.expects(:get_user_draft).with(*["me", test_draft[:id]]).once.returns(test_response(test_draft))
+      @mock.expects(:get_user_draft).with("me", test_draft[:id]).once.returns(test_response(test_draft))
       d = Gmail::Draft.get(test_draft[:id])
       assert d.kind_of?Gmail::Draft
       assert_equal test_draft[:id], d.id
@@ -22,12 +22,12 @@ module Gmail
   context "Message Object in draft" do
     should "retrieved Draft should not generate call to get Message Object" do
       draft = Gmail::Draft.new(test_draft)
-      @mock.expects(:execute).never
+      @mock.expects(:get_user_draft).never
       assert draft.message.kind_of?Gmail::Message
     end
 
     should "Draft get from a draft list should generate call to get Message Object" do
-      @mock.expects(:execute).with(api_method: Gmail.service.users.drafts.list, parameters: {userId: "me"}, headers: {'Content-Type' => 'application/json'}).once.returns(test_response(test_draft_list))
+      @mock.expects(:list_user_drafts).with("me").once.returns(test_response(test_draft_list))
       list = Gmail::Draft.all
       draft = list.first
 
@@ -40,7 +40,7 @@ module Gmail
 
 
     should "drafts should be deletable" do
-      @mock.expects(:execute).with(api_method: Gmail.service.users.drafts.delete, parameters: {userId: "me", id: test_draft[:id]}, headers: {'Content-Type' => 'application/json'}).once.returns(test_response(""))
+      @mock.expects(:delete_user_draft).with("me", test_draft[:id]).once.returns(test_response(""))
       d = Gmail::Draft.new(test_draft)
       r = d.delete
       assert r
@@ -49,7 +49,7 @@ module Gmail
     should "drafts should be updateable" do
       draft_hash = test_draft
       draft_hash[:message].merge!({labelIds: ["COOL LABEL"]})
-      @mock.expects(:execute).with(api_method: Gmail.service.users.drafts.get, parameters: {id: test_draft[:id], userId: "me"} , headers: {'Content-Type' => 'application/json'}).once.returns(test_response(draft_hash))
+      @mock.expects(:get_user_draft).with("me", test_draft[:id]).once.returns(test_response(draft_hash))
 
       d = Gmail::Draft.new(id: test_draft[:id]).detailed
       # those two lines are required because raw generation change between two calls...
