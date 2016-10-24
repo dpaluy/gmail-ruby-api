@@ -50,6 +50,7 @@ module Gmail
   def self.request(method, params={}, body={}, auth_method=@auth_method)
   
     params[:user_id] ||= "me"
+    auth_method ||= "web_application"
     case auth_method
       when "web_application" 
         if @client.nil?
@@ -84,6 +85,7 @@ module Gmail
   def self.new_request(method, params={},body={}, auth_method = @auth_method)
     params[:userId] ||= "me"
     variables = [params[:userId], *params[:variables]]
+    auth_method ||= "web application"
     unless auth_method.nil?
       case auth_method
         when "web_application" 

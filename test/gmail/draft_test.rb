@@ -6,14 +6,14 @@ module Gmail
 
     should "Draft should be retrievable by id" do
 
-      @mock.expects(:get_user_drafts).with(*["me", test_draft[:id]]).once.returns(test_response(test_draft))
+      @mock.expects(:get_user_draft).with(*["me", test_draft[:id]]).once.returns(test_response(test_draft))
       d = Gmail::Draft.get(test_draft[:id])
       assert d.kind_of?Gmail::Draft
       assert_equal test_draft[:id], d.id
     end
 
     should "drafts should be listable" do
-      @mock.expects(:execute).with(api_method: Gmail.service.users.drafts.list, parameters: {userId: "me"}, headers: {'Content-Type' => 'application/json'}).once.returns(test_response(test_draft_list))
+      @mock.expects(:list_user_drafts).with("me").once.returns(test_response(test_draft_list))
       list = Gmail::Draft.all
       assert list.kind_of? Array
       assert list[0].kind_of? Gmail::Draft
