@@ -52,7 +52,7 @@ this works for Messages, Labels, Drafts and Threads (everything)
 
 ```ruby
    Gmail::Message.all
-   Gmail::Message.all(maxResults: -1) #will parse everything. Use with care. Can through request timeout if used in web apps
+   Gmail::Message.all(max_results: -1) #will parse everything. Use with care. Can through request timeout if used in web apps
    Gmail::Message.get(message_id)
    some_gmail_message.delete
 ```

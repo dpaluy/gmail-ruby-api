@@ -37,26 +37,26 @@ module Gmail
 
     def deliver!
       #response = Gmail. request(self.class.base_method.to_h['gmail.users.messages.send'],{}, msg_parameters)
-      response = Gmail.new_request("send_user_message",{variables:["me", self]})
+      response = Gmail.new_request("send_user_message",{userId:"me", variables:[self]})
       @values = Message.get(response[:id]).values
       self
     end
 
     def deliver
       #response = Gmail. request(self.class.base_method.to_h['gmail.users.messages.send'],{}, msg_parameters)
-      response = Gmail.new_request("send_user_message",{variables:["me", self]})
+      response = Gmail.new_request("send_user_message",{userId:"me", variables:[self]})
       Message.get(response[:id])
     end
 
     def insert
       #response = Gmail. request(self.class.base_method.insert,{}, msg_parameters)
-      response = Gmail.new_request("insert_user_message",{variables:["me", self]})
+      response = Gmail.new_request("insert_user_message",{userId:"me", variables:[self]})
       Message.get(response[:id])
     end
 
     def insert!
       #response = Gmail. request(self.class.base_method.insert,{}, msg_parameters)
-      response = Gmail.new_request("insert_user_message",{variables:["me", self]})
+      response = Gmail.new_request("insert_user_message",{userId:"me", variables:[self]})
       @values = Message.get(response[:id]).values
       self
     end

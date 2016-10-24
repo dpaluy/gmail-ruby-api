@@ -3,7 +3,7 @@ module Gmail
     module Modify
       def modify!(addLabelIds=[], removeLabelIds=[])
         #response = Gmail. request(self.class.base_method.send("modify"),{id: id}, {addLabelIds: addLabelIds, removeLabelIds: removeLabelIds})
-        response = Gmail.new_request("modify_#{class_name.downcase}",{variables:["me", id]}, {addLabelIds: addLabelIds, removeLabelIds: removeLabelIds})
+        response = Gmail.new_request("modify_#{class_name.downcase}",{userId:"me", variables:[id]}, {addLabelIds: addLabelIds, removeLabelIds: removeLabelIds})
         d = Util.convert_to_gmail_object(response, self.class.class_name.downcase)
         @values = d.values
         self
@@ -11,7 +11,7 @@ module Gmail
 
       def modify(addLabelIds=[], removeLabelIds=[])
         #response = Gmail. request(self.class.base_method.send("modify"),{id: id}, {addLabelIds: addLabelIds, removeLabelIds: removeLabelIds})
-        response = Gmail.new_request("modify_#{class_name.downcase}",{variables:["me", id]}, {addLabelIds: addLabelIds, removeLabelIds: removeLabelIds})
+        response = Gmail.new_request("modify_#{class_name.downcase}",{userId:"me", variables:[id]}, {addLabelIds: addLabelIds, removeLabelIds: removeLabelIds})
         d = Util.convert_to_gmail_object(response, self.class.class_name.downcase)
       end
 

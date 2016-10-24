@@ -25,16 +25,16 @@ module Gmail
 
     should "construct URL properly with base query parameters" do
       response = test_response(test_thread_list)
-      @mock.expects(:execute).with(api_method: Gmail.service.users.threads.list, parameters: {userId: "me"}, headers: {'Content-Type' => 'application/json'}).returns(response)
+      @mock.expects(:list_user_threads).with(parameters: {userId: "me"}, headers: {'Content-Type' => 'application/json'}).returns(response)
       Gmail::Thread.all
 
-      @mock.expects(:execute).with(api_method: Gmail.service.users.threads.list, parameters: {maxResults: 150, userId: "test@test.com"}, headers: {'Content-Type' => 'application/json'}).returns(response)
-      Gmail::Thread.all(maxResults: 150, userId: "test@test.com")
+      @mock.expects(:list_user_threads).with(parameters: {max_results: 150, userId: "test@test.com"}, headers: {'Content-Type' => 'application/json'}).returns(response)
+      Gmail::Thread.all(max_results: 150, userId: "test@test.com")
     end
 
 
     should "deleting should return true" do
-      @mock.expects(:execute).with(api_method: Gmail.service.users.drafts.delete, parameters: {userId: "me", id: test_draft[:id]}, headers: {'Content-Type' => 'application/json'}).once.returns(test_response(""))
+      @mock.expects(:delete_user_draft).with("me", test_draft[:id], headers: {'Content-Type' => 'application/json'}).once.returns(test_response(""))
 
       d = Gmail::Draft.new test_draft
 

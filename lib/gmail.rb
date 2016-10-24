@@ -82,7 +82,8 @@ module Gmail
   end
 
   def self.new_request(method, params={},body={}, auth_method = @auth_method)
-    #params[:user_id] ||= "me"
+    params[:userId] ||= "me"
+    variables = [params[:userId], *params[:variables]]
     case auth_method
       when "web_application" 
         if @client.nil?
@@ -97,9 +98,9 @@ module Gmail
     end
   
     if body.empty?
-      response = @client.send(method,*params[:variables]).to_json
+      response = @client.send(method,*variables).to_json
     else
-      response = @client.send(method,*params[:variables], body).to_json
+      response = @client.send(method,*variables, body).to_json
     end
     parse(response)
   end
