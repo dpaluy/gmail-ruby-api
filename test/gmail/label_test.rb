@@ -116,7 +116,7 @@ module Gmail
       label_hash = test_label
       label_hash.delete(:id)
       label = Gmail::Label.new label_hash
-      @mock.expects(:create_user_label.with("me", label_hash).once.returns(test_response(test_label))
+      @mock.expects(:create_user_label).with("me", label_hash).once.returns(test_response(test_label))
       created_l = label.save!
       assert_equal Gmail::Label, created_l.class
       assert_equal test_label[:id], label.id
