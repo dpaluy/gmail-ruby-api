@@ -99,11 +99,13 @@ module Gmail
             self.service_account_connect
           end
       end
-    
+      #Pretend it's a response until I work out a better way of doing it. 
+      response = Hashie::Mash.new
+
       if body.empty?
-        response = @client.send(method,*variables).to_json
+        response.body = @client.send(method,*variables).to_json
       else
-        response = @client.send(method,*variables, body).to_json
+        response.body = @client.send(method,*variables, body).to_json
       end
       parse(response)
     else
@@ -172,11 +174,14 @@ module Gmail
 
   def self.parse(response)
     begin
+      if response.body.empty?
+        return response.body
 
-      if response.empty?
-        return response
+      # if response.empty?
+      #   return response
       else
-        response = JSON.parse(response)
+        # response = JSON.parse(response)
+        response = JSON.parse(response.body)
       end
 
     rescue JSON::ParserError => e

@@ -48,7 +48,7 @@ module Gmail
       
       # Problematic. this expects a Google::APIs::GmailV1::Draft object. 
       #It might be sensible to build a reverse gmail object creator to cope with the two different types of Gmail Object (which may be incompatible)
-      response = Gmail.new_request("send_user_draft", {userId:"me", variables:[self]},{id:id})
+      response = Gmail.new_request("send_user_draft", {userId:"me", variables:[]},{id:id})
       Message.get(response[:id])
     end
 

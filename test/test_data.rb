@@ -6,9 +6,9 @@ module Gmail
       # can't just use the stubs interface.
       body = JSON.generate(body) if !(body.kind_of? String)
       m = mock
-      #m.instance_variable_set('@gmail_values', { :body => body, :code => code })
-      #def m.body; @gmail_values[:body]; end
-      #def m.code; @gmail_values[:code]; end
+      m.instance_variable_set('@gmail_values', { :body => body, :code => code })
+      def m.body; @gmail_values[:body]; end
+      def m.code; @gmail_values[:code]; end
       m = body
     end
 
