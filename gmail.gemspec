@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
   This is pretty much in alpha right now, though it's vaguely functional. All help gratefully received."
   s.version = Gmail::VERSION
   s.platform = Gem::Platform::RUBY
-  s.authors = ["Keiran Betteley", ["Julien Hobeika",]
+  s.authors = ["Keiran Betteley", "Julien Hobeika"]
   s.homepage = "http://github.com/carpela/gmail-api-ruby"
   s.licenses = ['MIT']
 
