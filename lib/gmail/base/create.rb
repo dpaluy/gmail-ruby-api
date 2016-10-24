@@ -3,7 +3,8 @@ module Gmail
     module Create
       module ClassMethods
         def create(body, opts={})
-          response = Gmail.request(base_method.send("create"), {}, body)
+          #response = Gmail. request(base_method.send("create"), {}, body)
+          response = Gmail.new_request("create_user_#{class_name.downcase}"{variables:["me",id]},body)
           Util.convert_to_gmail_object(response, class_name.downcase)
         end
       end

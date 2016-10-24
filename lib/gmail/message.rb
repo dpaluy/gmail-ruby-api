@@ -11,6 +11,22 @@ module Gmail
 
     after_initialize :set_basics
 
+    # def self.get(id)
+    #   response = Gmail.client.get_user_message("me", id)
+    #   Util.convert_to_gmail_object(response, class_name.downcase)
+    # end
+    def get_batch(mailIds)
+      mails = []
+      Gmail.client.batch do |client|
+        ["157f6c65dd14d90e", "157f6c65c452ff43"].each do |id|
+          cl.get_user_message("me", id) do |res, err|  
+            mails << Util.convert_to_gmail_object(parse(res.to_json))
+          end
+        end
+      end
+      mails
+    end
+
     def thread
       Thread.get(threadId)
     end
@@ -20,23 +36,27 @@ module Gmail
     end
 
     def deliver!
-      response = Gmail.request(self.class.base_method.to_h['gmail.users.messages.send'],{}, msg_parameters)
+      #response = Gmail. request(self.class.base_method.to_h['gmail.users.messages.send'],{}, msg_parameters)
+      response = Gmail.new_request("send_user_message",{variables:["me", self]})
       @values = Message.get(response[:id]).values
       self
     end
 
     def deliver
-      response = Gmail.request(self.class.base_method.to_h['gmail.users.messages.send'],{}, msg_parameters)
+      #response = Gmail. request(self.class.base_method.to_h['gmail.users.messages.send'],{}, msg_parameters)
+      response = Gmail.new_request("send_user_message",{variables:["me", self]})
       Message.get(response[:id])
     end
 
     def insert
-      response = Gmail.request(self.class.base_method.insert,{}, msg_parameters)
+      #response = Gmail. request(self.class.base_method.insert,{}, msg_parameters)
+      response = Gmail.new_request("insert_user_message",{variables:["me", self]})
       Message.get(response[:id])
     end
 
     def insert!
-      response = Gmail.request(self.class.base_method.insert,{}, msg_parameters)
+      #response = Gmail. request(self.class.base_method.insert,{}, msg_parameters)
+      response = Gmail.new_request("insert_user_message",{variables:["me", self]})
       @values = Message.get(response[:id]).values
       self
     end
@@ -220,6 +240,15 @@ module Gmail
           @values.body = urlsafe_decode64(@values.payload.body.data)
         end
       end
+    end
+
+    def unset_basics
+      ["From", "To", "Cc", "Subject", "Bcc", "Date", "Message-ID", "References", "In-Reply-To", "Delivered-To"].each do |n|
+        @values.delete(n.downcase.tr("-", "_"))
+      end
+      @values.delete("text")
+      @values.delete("html")
+      @values.delete("body")
     end
 
     class Hashie::Mash

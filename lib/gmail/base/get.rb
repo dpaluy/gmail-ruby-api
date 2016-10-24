@@ -3,9 +3,9 @@ module Gmail
     module Get
       module ClassMethods
         def get(id)
-          response = Gmail.request(base_method.send("get"), {id: id})
+          #response = Gmail. request(base_method.send("get"), {id: id})
+          response = Gmail.new_request("get_user_#{class_name.downcase}",{variables:["me", id]})
           Util.convert_to_gmail_object(response, class_name.downcase)
-
         end
       end
 

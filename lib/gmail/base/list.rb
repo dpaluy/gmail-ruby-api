@@ -3,13 +3,15 @@ module Gmail
     module List
       module ClassMethods
         def all(filters={}, opts={})
-          max_results = filters[:maxResults] || 100
+          max_results = filters[:max_results] || 100
           opts[:items] ||= []
 
           if max_results == -1
-            filters.merge!({maxResults: 100})
+            filters.merge!({max_results: 100})
           end
-          response = Gmail.request(base_method.send("list"), filters)
+          #response = Gmail. request(base_method.send("list"), filters)
+          response = Gmail.new_request("list_user_#{class_name.downcase}s",{variables:["me"]},filters)
+
           items = response["#{class_name.downcase}s".to_sym] || []
           next_page_token = response[:nextPageToken]
           opts[:items] = opts[:items] + items
@@ -18,7 +20,7 @@ module Gmail
             Util.convert_to_gmail_object(opts[:items], class_name.downcase)
           else
             max_results = (max_results == -1)?-1:max_results-items.count
-            all(filters.merge({maxResults: max_results, pageToken: next_page_token}), opts)
+            all(filters.merge({max_results: max_results, page_token: next_page_token}), opts)
           end
         end
 

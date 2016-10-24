@@ -44,7 +44,11 @@ module Gmail
     end
 
     def deliver
-      response = Gmail.request(self.class.base_method.to_h['gmail.users.drafts.send'],{},{id: id})
+      #response = Gmail. request(self.class.base_method.to_h['gmail.users.drafts.send'],{},{id: id})
+      
+      # Problematic. this expects a Google::APIs::GmailV1::Draft object. 
+      #It might be sensible to build a reverse gmail object creator to cope with the two different types of Gmail Object (which may be incompatible)
+      response = Gmail.new_request("send_user_draft", {variables:["me",self]},{id:id})
       Message.get(response[:id])
     end
 

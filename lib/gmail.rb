@@ -1,7 +1,7 @@
 require 'mail'
 require 'hashie'
 require 'hooks'
-require 'google/api_client'
+#require 'google/api_client'
 require 'gmail/gmail_object'
 require 'gmail/api_resource'
 #base
@@ -20,11 +20,14 @@ require 'gmail/draft'
 require 'gmail/thread'
 require 'gmail/label'
 
+require 'googleauth'
+require 'google/apis/gmail_v1'
 module Gmail
 
   class << self
     attr_accessor :auth_method, :client_id, :client_secret, 
-      :refresh_token, :auth_scopes, :email_account, :application_name, :application_version
+      :refresh_token, :auth_scopes, :email_account
+      #, :application_name, :application_version not required
     attr_reader :service, :client, :mailbox_email
     def new hash
       [:auth_method, :client_id, :client_secret, :refresh_token, :auth_scopes, :email_account, :application_name, :application_version].each do |accessor|
@@ -33,19 +36,19 @@ module Gmail
     end
   end
 
-  Google::APIClient.logger.level = 3
-  @service = Google::APIClient.new.discovered_api('gmail', 'v1')
-  Google::APIClient.logger.level = 2
+  # Google::APIClient.logger.level = 3
+  # @service = Google::APIClient.new.discovered_api('gmail', 'v1')
+  # Google::APIClient.logger.level = 2
 
-  begin
-    Gmail.new  YAML.load_file("account.yml")  # for development purpose
-  rescue
+  # begin
+  #   Gmail.new  YAML.load_file("account.yml")  # for development purpose
+  # rescue
 
-  end
-
+  # end
+  
   def self.request(method, params={}, body={}, auth_method=@auth_method)
-    
-    params[:userId] ||= "me"
+  
+    params[:user_id] ||= "me"
     case auth_method
       when "web_application" 
         if @client.nil?
@@ -67,18 +70,42 @@ module Gmail
           :headers => {'Content-Type' => 'application/json'})
     else
 
-     response =  @client.execute(
-          :api_method => method,
-          :parameters => params,
-          :body_object => body,
-          :headers => {'Content-Type' => 'application/json'})
+     # response =  @client.execute(
+     #      :api_method => method,
+     #      :parameters => params,
+     #      :body_object => body,
+     #      :headers => {'Content-Type' => 'application/json'})
     end
     parse(response)
 
   end
 
+  def self.new_request(method, params={},body={}, auth_method = @auth_method)
+    #params[:user_id] ||= "me"
+    case auth_method
+      when "web_application" 
+        if @client.nil?
+          self.connect
+        end
+      when "service_account"
+        if @client.nil?
+          self.service_account_connect
+        elsif self.client.authorization.principal != @email_account
+          self.service_account_connect
+        end
+    end
+  
+    if body.empty?
+      response = @client.send(method,*params[:variables]).to_json
+    else
+      response = @client.send(method,*params[:variables], body).to_json
+    end
+    parse(response)
+  end
+
   def self.mailbox_email
-    @mailbox_email ||= self.request(@service.users.to_h['gmail.users.getProfile'])[:emailAddress]
+    #@mailbox_email ||= self.request(@service.users.to_h['gmail.users.getProfile'])[:emailAddress]
+    @mailbox_email ||= self.new_request("get_user_profile", {variables:["me"]}).email_address
   end
 
 
@@ -95,20 +122,33 @@ module Gmail
     unless refresh_token
       raise 'No refresh_token specified'
     end
+    
+    authorization = Google::Auth::UserRefreshCredentials.new(
+      client_id: client_id,
+      client_secret: client_secret,
+      refresh_token: refresh_token
+      )
 
-    @client = Google::APIClient.new(
-        application_name: @application_name,
-        application_version: @application_version
-    )
-    @client.authorization.client_id = client_id
-    @client.authorization.client_secret = client_secret
-    @client.authorization.refresh_token = refresh_token
-    @client.authorization.grant_type = 'refresh_token'
+    @client = Google::Apis::GmailV1::GmailService.new
+      
+    @client.authorization = authorization
     @client.authorization.fetch_access_token!
-    @client.auto_refresh_token = true
+    
+    # @client = Google::APIClient.new(
+    #     application_name: @application_name,
+    #     application_version: @application_version
+    # )
+    # @client.authorization.client_id = client_id
+    # @client.authorization.client_secret = client_secret
+    # @client.authorization.refresh_token = refresh_token
+    # @client.authorization.grant_type = 'refresh_token'
+    # @client.authorization.fetch_access_token!
+    # @client.auto_refresh_token = true
+
+
 
     #@service = @client.discovered_api('gmail', 'v1')
-
+    @service = @client
   end
 
   def self.service_account_connect(
@@ -138,14 +178,14 @@ module Gmail
   def self.parse(response)
     begin
 
-      if response.body.empty?
-        return response.body
+      if response.empty?
+        return response
       else
-        response = JSON.parse(response.body)
+        response = JSON.parse(response)
       end
 
     rescue JSON::ParserError
-      raise "error code: #{response.error},body: #{response.body})"
+      raise "error code: #{response.error},body: #{response})"
     end
 
     r = Gmail::Util.symbolize_names(response)

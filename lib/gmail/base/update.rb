@@ -5,7 +5,8 @@ module Gmail
         if id.nil?
           d = self.class.create(body)
         else
-          response = Gmail.request(self.class.base_method.send("update"),{id: id}, body)
+          #response = Gmail. request(self.class.base_method.send("update"),{id: id}, body)
+          response = Gmail.new_request("update_user_#{class_name.downcase}",{variables:["me",id]},body)
           d = Util.convert_to_gmail_object(response, self.class.class_name.downcase)
         end
         @values = d.values
@@ -16,7 +17,8 @@ module Gmail
         if id.nil?
           d = self.class.create(body)
         else
-          response = Gmail.request(self.class.base_method.send("update"),{id: id}, body)
+          #response = Gmail. request(self.class.base_method.send("update"),{id: id}, body)
+          response = Gmail.new_request("update_user_#{class_name.downcase}",{variables:["me",id]},body)
           d = Util.convert_to_gmail_object(response, self.class.class_name.downcase)
         end
         d
