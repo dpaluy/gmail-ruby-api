@@ -60,7 +60,7 @@ module Gmail
 
       draft_hash[:message].merge!({labelIds: ["INBOX"]})
 
-      @mock.expects(:update_user_draft("me", test_draft[:id], {message: {raw: d.message.raw, threadId: test_draft[:message][:threadId], labelIds: ["INBOX"]}}).twice.returns(test_response(draft_hash))
+      @mock.expects(:update_user_draft).with("me", test_draft[:id], {message: {raw: d.message.raw, thread_id: test_draft[:message][:threadId], label_ids: ["INBOX"]}}).twice.returns(test_response(draft_hash))
 
 
       d.message.labelIds = ["INBOX"]
