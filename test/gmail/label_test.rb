@@ -5,7 +5,7 @@ module Gmail
   class LabelTest < Test::Unit::TestCase
 
     should "Labels should be listable" do
-      @mock.expects(:list_user_labels).with("me"}).once.returns(test_response(test_label_list))
+      @mock.expects(:list_user_labels).with("me").once.returns(test_response(test_label_list))
       list = Gmail::Label.all
       assert list.kind_of? Array
       assert list[0].kind_of? Gmail::Label
