@@ -150,25 +150,22 @@ module Gmail
   def self.service_account_connect(
     client_id=@client_id, client_secret=@client_secret,
     email_account=@email_account, auth_scopes=@auth_scopes 
-    # application_name=@application_name, application_version=@application_version
     )
-    puts "Authenticating service account - #{email_account}"
-    
+    #This relies on passing the client_secret as a parameter. 
+    authorization = Signet::OAuth2::Client.new(
+      :token_credential_uri => 'https://accounts.google.com/o/oauth2/token',
+      :audience => 'https://accounts.google.com/o/oauth2/token',
+      :scope => auth_scopes,
+      :issuer => client_id,
+      :signing_key => OpenSSL::PKey::RSA.new(client_secret, nil),
+    )
+    @client.authorization.principal = email_account
+    authorization.fetch_access_token!
+    #authorization
 
-    @client = Google::APIClient.new(application_name: application_name, application_version: application_version)
-      
-      
     
-    key = Google::APIClient::KeyUtils.load_from_pem(
-        client_secret,
-        'notasecret')
-    asserter = Google::APIClient::JWTAsserter.new(
-        client_id,
-        auth_scopes, 
-        key
-    )
-    @client.authorization = asserter.authorize(email_account)
-    
+    @service = @client
+    @auth_method = "service account"
   end
 
   def self.parse(response)
