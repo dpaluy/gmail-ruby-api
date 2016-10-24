@@ -3,7 +3,7 @@ module Gmail
     module Delete
       def delete(opts={})
         #response = Gmail. request(self.class.base_method.send("delete"),{id: id})
-        response = Gmail.new_request("delete_user_#{class_name.downcase}",{userId:"me", variables:[id]})
+        response = Gmail.new_request("delete_user_#{self.class.class_name.downcase}",{userId:"me", variables:[id]})
 
         if response == ""
           true

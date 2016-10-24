@@ -84,25 +84,29 @@ module Gmail
   def self.new_request(method, params={},body={}, auth_method = @auth_method)
     params[:userId] ||= "me"
     variables = [params[:userId], *params[:variables]]
-    case auth_method
-      when "web_application" 
-        if @client.nil?
-          self.connect
-        end
-      when "service_account"
-        if @client.nil?
-          self.service_account_connect
-        elsif self.client.authorization.principal != @email_account
-          self.service_account_connect
-        end
-    end
-  
-    if body.empty?
-      response = @client.send(method,*variables).to_json
+    unless auth_method.nil?
+      case auth_method
+        when "web_application" 
+          if @client.nil?
+            self.connect
+          end
+        when "service_account"
+          if @client.nil?
+            self.service_account_connect
+          elsif self.client.authorization.principal != @email_account
+            self.service_account_connect
+          end
+      end
+    
+      if body.empty?
+        response = @client.send(method,*variables).to_json
+      else
+        response = @client.send(method,*variables, body).to_json
+      end
+      parse(response)
     else
-      response = @client.send(method,*variables, body).to_json
+      raise "No Auth Method defined"
     end
-    parse(response)
   end
 
   def self.mailbox_email
@@ -134,29 +138,19 @@ module Gmail
     @client = Google::Apis::GmailV1::GmailService.new
       
     @client.authorization = authorization
+    # We don't currently specify what the account is... this could beb problematic as it's a useful piece of information.
+    # @client.authorization.principal
     @client.authorization.fetch_access_token!
+    @client.authorization.principal = @client.get_user_profile("me").email_address
     
-    # @client = Google::APIClient.new(
-    #     application_name: @application_name,
-    #     application_version: @application_version
-    # )
-    # @client.authorization.client_id = client_id
-    # @client.authorization.client_secret = client_secret
-    # @client.authorization.refresh_token = refresh_token
-    # @client.authorization.grant_type = 'refresh_token'
-    # @client.authorization.fetch_access_token!
-    # @client.auto_refresh_token = true
-
-
-
-    #@service = @client.discovered_api('gmail', 'v1')
     @service = @client
+    @auth_method = "web application"
   end
 
   def self.service_account_connect(
     client_id=@client_id, client_secret=@client_secret,
-    email_account=@email_account, auth_scopes=@auth_scopes, 
-    application_name=@application_name, application_version=@application_version
+    email_account=@email_account, auth_scopes=@auth_scopes 
+    # application_name=@application_name, application_version=@application_version
     )
     puts "Authenticating service account - #{email_account}"
     
@@ -196,6 +190,5 @@ module Gmail
     end
     r
   end
-
 
 end # Gmail
