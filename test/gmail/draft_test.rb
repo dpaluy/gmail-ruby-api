@@ -87,8 +87,8 @@ module Gmail
 
 
     should "Draft should be sendable and return a Message" do
-      @mock.expects(:execute).with(api_method: Gmail.service.users.drafts.to_h['gmail.users.drafts.send'], parameters: {userId: "me"}, body_object:{id: test_draft[:id]} , headers: {'Content-Type' => 'application/json'}).once.returns(test_response(test_message))
-      @mock.expects(:execute).with(api_method: Gmail.service.users.messages.get, parameters: {userId: "me", id: test_message[:id]}, headers: {'Content-Type' => 'application/json'}).once.returns(test_response(test_message))
+      @mock.expects(:send_user_draft).with("me", {id: test_draft[:id]} ).once.returns(test_response(test_message))
+      @mock.expects(:get_user_message).with("me",test_message[:id]).once.returns(test_response(test_message))
 
       d = Gmail::Draft.new test_draft
       m = d.deliver
