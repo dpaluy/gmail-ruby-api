@@ -31,7 +31,7 @@ module Gmail
       list = Gmail::Draft.all
       draft = list.first
 
-      @mock.expects(:execute).with(api_method: Gmail.service.users.drafts.get, parameters: {userId: "me", id: test_draft[:id]}, headers: {'Content-Type' => 'application/json'}).once.returns(test_response(test_draft))
+      @mock.expects(:get_user_draft).with("me", test_draft[:id]).once.returns(test_response(test_draft))
 
       assert draft.message.kind_of?Gmail::Message
       assert_not_nil draft.message.payload
@@ -60,7 +60,7 @@ module Gmail
 
       draft_hash[:message].merge!({labelIds: ["INBOX"]})
 
-      @mock.expects(:execute).with(api_method: Gmail.service.users.drafts.update, parameters: {id: test_draft[:id], userId: "me"}, body_object:{message: {raw: d.message.raw, threadId: test_draft[:message][:threadId], labelIds: ["INBOX"]}} , headers: {'Content-Type' => 'application/json'}).twice.returns(test_response(draft_hash))
+      @mock.expects(:update_user_draft("me", test_draft[:id], {message: {raw: d.message.raw, threadId: test_draft[:message][:threadId], labelIds: ["INBOX"]}}).twice.returns(test_response(draft_hash))
 
 
       d.message.labelIds = ["INBOX"]
@@ -79,7 +79,7 @@ module Gmail
       raw = d.message.raw
       d.message.raw = raw
       ###
-      @mock.expects(:execute).with(api_method: Gmail.service.users.drafts.create, parameters: {userId: "me"}, body_object:{message: {raw: d.message.raw, threadId: draft_hash[:message][:threadId], labelIds: draft_hash[:message][:labelIds]}} , headers: {'Content-Type' => 'application/json'}).once.returns(test_response(test_draft))
+      @mock.expects(:create_user_draft).with("me", {message: {raw: d.message.raw, threadId: draft_hash[:message][:threadId], labelIds: draft_hash[:message][:labelIds]}}).once.returns(test_response(test_draft))
       created_d = d.save!
       assert_equal Gmail::Draft, created_d.class
       assert_equal test_draft[:id], d.id

@@ -180,7 +180,8 @@ module Gmail
       end
 
     rescue JSON::ParserError
-      raise "error code: #{response.error},body: #{response})"
+      #raise "error code: #{response.error},body: #{response})"
+      raise "Error: #{response}"
     end
 
     r = Gmail::Util.symbolize_names(response)

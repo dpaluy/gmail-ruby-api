@@ -17,7 +17,7 @@ module Gmail
       assert_equal "Can't detail a generic GmailObject. It needs to be a Thread, Message, Draft or Label", exception.message
 
       not_generic_object = Gmail::Message.new test_message
-      @mock.expects(:execute).with(api_method: Gmail.service.users.messages.get, parameters: {userId: "me", id: test_message[:id]}, headers: {'Content-Type' => 'application/json'}).twice.returns(test_response(test_message))
+      @mock.expects(:get_user_message).with( "me", test_message[:id]).twice.returns(test_response(test_message))
 
       new_o = not_generic_object.detailed
       assert_not_equal new_o.object_id, not_generic_object.object_id
