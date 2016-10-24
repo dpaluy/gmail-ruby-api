@@ -179,9 +179,9 @@ module Gmail
         response = JSON.parse(response)
       end
 
-    rescue JSON::ParserError
+    rescue JSON::ParserError => e
       #raise "error code: #{response.error},body: #{response})"
-      raise "Error: #{response}"
+      raise "Error: #{e} - #{response}"
     end
 
     r = Gmail::Util.symbolize_names(response)

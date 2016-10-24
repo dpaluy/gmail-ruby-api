@@ -3,13 +3,13 @@ module Gmail
     module Trash
       def trash(opts={})
         #response = Gmail. request(self.class.base_method.send("trash"),{id: id})
-        response = Gmail.new_request("trash_user_#{class_name.downcase}",{userId:"me", variables:[id]})
+        response = Gmail.new_request("trash_user_#{self.class.class_name.downcase}",{userId:"me", variables:[id]})
         Util.convert_to_gmail_object(response, self.class.class_name.downcase)
       end
 
       def untrash(opts={})
         #response = Gmail. request(self.class.base_method.send("untrash"),{id: id})
-        response = Gmail.new_request("untrash_user_#{class_name.downcase}",{userId:"me", variables:[id]})
+        response = Gmail.new_request("untrash_user_#{self.class.class_name.downcase}",{userId:"me", variables:[id]})
         Util.convert_to_gmail_object(response, self.class.class_name.downcase)
       end
 
