@@ -6,7 +6,7 @@ module Gmail
   class MessageTest < Test::Unit::TestCase
 
     should "messages should be listable" do
-      @mock.expects(:execute).with(api_method: Gmail.service.users.messages.list, parameters: {userId: "me"}, headers: {'Content-Type' => 'application/json'}).once.returns(test_response(test_message_list))
+      @mock.expects(:list_user_messages).with("me").once.returns(test_response(test_message_list))
       list = Gmail::Message.all
       assert_equal Array, list.class
       assert_equal Gmail::Message, list[0].class
@@ -14,7 +14,7 @@ module Gmail
 
     should "message should be retrievable by id" do
 
-      @mock.expects(:execute).with(api_method: Gmail.service.users.messages.get, parameters: {userId: "me", id: test_message[:id]}, headers: {'Content-Type' => 'application/json'}).once.returns(test_response(test_message))
+      @mock.expects(:get_user_message).with("me", test_message[:id]).once.returns(test_response(test_message))
       t = Gmail::Message.get(test_message[:id])
       assert_equal Gmail::Message, t.class
       assert_equal test_message[:id], t.id
@@ -41,7 +41,7 @@ module Gmail
 
 
     should "Access thread from message" do
-      @mock.expects(:execute).with(api_method: Gmail.service.users.threads.get, parameters: {userId: "me", id: test_message[:threadId]}, headers: {'Content-Type' => 'application/json'}).once.returns(test_response(test_thread))
+      @mock.expects(:get_user_thread).with("me", test_message[:threadId]).once.returns(test_response(test_thread))
       m = Gmail::Message.new(test_message)
       t = m.thread
       assert_equal test_message[:threadId], m.thread_id
@@ -49,21 +49,21 @@ module Gmail
     end
 
     should "message should be deletable" do
-      @mock.expects(:execute).with(api_method: Gmail.service.users.messages.delete, parameters: {userId: "me", id: test_message[:id]}, headers: {'Content-Type' => 'application/json'}).once.returns(test_response(""))
+      @mock.expects(:delete_user_message).with("me", test_message[:id]).once.returns(test_response(""))
       t = Gmail::Message.new(test_message)
       r = t.delete
       assert r
     end
 
     should "message should be thrashable" do
-      @mock.expects(:execute).with(api_method: Gmail.service.users.messages.trash, parameters: {userId: "me", id: test_message[:id]}, headers: {'Content-Type' => 'application/json'}).once.returns(test_response(test_message))
+      @mock.expects(:trash_user_message).with("me", test_message[:id]).once.returns(test_response(test_message))
       t = Gmail::Message.new(test_message)
       r = t.trash
       assert_equal Gmail::Message, r.class
     end
 
     should "message should be unthrashable" do
-      @mock.expects(:execute).with(api_method: Gmail.service.users.messages.untrash, parameters: {userId: "me", id: test_message[:id]}, headers: {'Content-Type' => 'application/json'}).once.returns(test_response(test_message))
+      @mock.expects(:untrash_user_message).with("me",test_message[:id]).once.returns(test_response(test_message))
       t = Gmail::Message.new(test_message)
       r = t.untrash
       assert_equal Gmail::Message, r.class
@@ -71,7 +71,7 @@ module Gmail
 
     context "Modifying Labels" do
       should "message should be starrable" do
-        @mock.expects(:execute).with(api_method: Gmail.service.users.messages.modify, parameters: {userId: "me", id: test_message[:id]}, body_object: {addLabelIds: ["STARRED"], removeLabelIds: []} , headers: {'Content-Type' => 'application/json'}).twice.returns(test_response(test_message))
+        @mock.expects(:modify_message).with("me", test_message[:id], {addLabelIds: ["STARRED"], removeLabelIds: []}).twice.returns(test_response(test_message))
         t = Gmail::Message.new(test_message)
         r = t.star
         assert_equal Gmail::Message, r.class
@@ -84,7 +84,7 @@ module Gmail
       end
 
       should "message should be unstarrable" do
-        @mock.expects(:execute).with(api_method: Gmail.service.users.messages.modify, parameters: {userId: "me", id: test_message[:id]}, body_object: {addLabelIds: [], removeLabelIds: ["STARRED"]} , headers: {'Content-Type' => 'application/json'}).twice.returns(test_response(test_message))
+        @mock.expects(:modify_message).with("me", test_message[:id], {addLabelIds: [], removeLabelIds: ["STARRED"]} ).twice.returns(test_response(test_message))
         t = Gmail::Message.new(test_message)
         r = t.unstar
         assert_equal Gmail::Message, r.class
@@ -97,7 +97,7 @@ module Gmail
       end
 
       should "message should be archivable" do
-        @mock.expects(:execute).with(api_method: Gmail.service.users.messages.modify, parameters: {userId: "me", id: test_message[:id]}, body_object: {addLabelIds: [], removeLabelIds: ["INBOX"]} , headers: {'Content-Type' => 'application/json'}).twice.returns(test_response(test_message))
+        @mock.expects(:modify_message).with("me", test_message[:id],{addLabelIds: [], removeLabelIds: ["INBOX"]}).twice.returns(test_response(test_message))
         t = Gmail::Message.new(test_message)
         r = t.archive
         assert_equal Gmail::Message, r.class
@@ -109,7 +109,7 @@ module Gmail
       end
 
       should "message should be unarchivable" do
-        @mock.expects(:execute).with(api_method: Gmail.service.users.messages.modify, parameters: {userId: "me", id: test_message[:id]}, body_object: {addLabelIds: ["INBOX"], removeLabelIds: []} , headers: {'Content-Type' => 'application/json'}).twice.returns(test_response(test_message))
+        @mock.expects(:modify_message).with("me", test_message[:id], {addLabelIds: ["INBOX"], removeLabelIds: []}).twice.returns(test_response(test_message))
         t = Gmail::Message.new(test_message)
         r = t.unarchive
         assert_equal Gmail::Message, r.class
@@ -121,7 +121,7 @@ module Gmail
       end
 
       should "message should be markable as read" do
-        @mock.expects(:execute).with(api_method: Gmail.service.users.messages.modify, parameters: {userId: "me", id: test_message[:id]}, body_object: {addLabelIds: [], removeLabelIds: ["UNREAD"]} , headers: {'Content-Type' => 'application/json'}).twice.returns(test_response(test_message))
+        @mock.expects(:modify_message).with("me",test_message[:id],{addLabelIds: [], removeLabelIds: ["UNREAD"]} ).twice.returns(test_response(test_message))
         t = Gmail::Message.new(test_message)
         r = t.mark_as_read
         assert_equal Gmail::Message, r.class
@@ -133,7 +133,7 @@ module Gmail
       end
 
       should "message should be markable as unread" do
-        @mock.expects(:execute).with(api_method: Gmail.service.users.messages.modify, parameters: {userId: "me", id: test_message[:id]}, body_object: {addLabelIds: ["UNREAD"], removeLabelIds: []} , headers: {'Content-Type' => 'application/json'}).twice.returns(test_response(test_message))
+        @mock.expects(:modify_message).with("me", test_message[:id], {addLabelIds: ["UNREAD"], removeLabelIds: []} ).twice.returns(test_response(test_message))
         t = Gmail::Message.new(test_message)
         r = t.mark_as_unread
         assert_equal Gmail::Message, r.class
@@ -146,7 +146,7 @@ module Gmail
 
 
       should "message label should be modifiable as wish" do
-        @mock.expects(:execute).with(api_method: Gmail.service.users.messages.modify, parameters: {userId: "me", id: test_message[:id]}, body_object: {addLabelIds: ["UNREAD", "SOME COOL LABEL"], removeLabelIds: ["INBOX", "SOME NOT COOL LABEL"]} , headers: {'Content-Type' => 'application/json'}).twice.returns(test_response(test_message))
+        @mock.expects(:modify_message).with("me", test_message[:id], {addLabelIds: ["UNREAD", "SOME COOL LABEL"], removeLabelIds: ["INBOX", "SOME NOT COOL LABEL"]} ).twice.returns(test_response(test_message))
         t = Gmail::Message.new(test_message)
         r = t.modify ["UNREAD", "SOME COOL LABEL"], ["INBOX", "SOME NOT COOL LABEL"]
         assert_equal Gmail::Message, r.class
@@ -181,8 +181,8 @@ module Gmail
 
 
     should "Message should be searcheable" do
-      @mock.expects(:execute).with(api_method: Gmail.service.users.messages.list, parameters: {userId: "me", q: "from:(me) to:(you) subject:(subject) in:inbox before:2014/12/1 after:2014/11/1 test -{real}", labelIds:["UNREAD"]}, headers: {'Content-Type' => 'application/json'}).once.returns(test_response(test_message_list))
-      list = Gmail::Message.search(from:"me", to: "you", subject: "subject", in: "inbox", before: "2014/12/1", after: "2014/11/1", has_words: "test", has_not_words: "real", labelIds: ["UNREAD"])
+      @mock.expects(:list_user_messages).with("me", q: "from:(me) to:(you) subject:(subject) in:inbox before:2014/12/1 after:2014/11/1 test -{real}", label_ids:["UNREAD"]).once.returns(test_response(test_message_list))
+      list = Gmail::Message.search(from:"me", to: "you", subject: "subject", in: "inbox", before: "2014/12/1", after: "2014/11/1", has_words: "test", has_not_words: "real", label_ids: ["UNREAD"])
       assert_equal Array, list.class
       assert_equal Gmail::Message, list[0].class
     end
@@ -206,7 +206,7 @@ module Gmail
       # raw generation change between two calls because date won't be the same...
       m.raw = m.raw
       ###
-      @mock.expects(:execute).with(api_method: Gmail.service.users.drafts.create, parameters: {userId: "me"}, body_object:{message: {raw: m.raw, threadId: test_message[:threadId], labelIds: test_message[:labelIds]}} , headers: {'Content-Type' => 'application/json'}).once.returns(test_response(test_draft))
+      @mock.expects(:execute).with(api_method: Gmail.service.users.drafts.create, parameters: {userId: "me"}, body_object:{message: {raw: m.raw, threadId: test_message[:threadId], labelIds: test_message[:labelIds]}} ).once.returns(test_response(test_draft))
       d = m.create_draft
       assert_equal Gmail::Draft, d.class
 
@@ -216,9 +216,9 @@ module Gmail
 
       m = Gmail::Message.new test_message
       m.raw = m.raw
-      @mock.expects(:execute).with(api_method: Gmail.service.users.messages.to_h['gmail.users.messages.send'], parameters: {userId: "me"}, body_object:{raw: m.raw, labelIds: test_message[:labelIds], threadId: test_message[:threadId]} , headers: {'Content-Type' => 'application/json'}).twice.returns(test_response(test_message))
+      @mock.expects(:send_user_message).with("me",{raw: m.raw, labelIds: test_message[:labelIds], threadId: test_message[:threadId]} ).twice.returns(test_response(test_message))
 
-      @mock.expects(:execute).with(api_method: Gmail.service.users.messages.get, parameters: {userId: "me", id: test_message[:id]}, headers: {'Content-Type' => 'application/json'}).twice.returns(test_response(test_message))
+      @mock.expects(:get_user_message).with("me", test_message[:id]).twice.returns(test_response(test_message))
 
 
       new_m = m.deliver
@@ -234,7 +234,8 @@ module Gmail
     should "Reply to sender contruct should be easy" do
       m = Gmail::Message.new test_to_reply_message
       reply_message = Gmail::Message.new test_reply_message
-      @mock.expects(:execute).never
+      #TODO This is not an equivalent check to execute .never
+      @mock.expects(:get_user_message).never
       expected_msg = Gmail::Message.new test_replied_message
       new_m = m.reply_sender_with reply_message
 
@@ -261,7 +262,8 @@ module Gmail
     should "Reply to all construct should be easy" do
       m = Gmail::Message.new test_to_reply_message
       reply_message = Gmail::Message.new test_reply_message
-      @mock.expects(:execute).never
+      #@mock.expects(:execute).never
+      @mock.expects(:get_user_message).never
       new_m = m.reply_all_with reply_message
       expected_msg = Gmail::Message.new test_replied_message
 
@@ -301,7 +303,7 @@ module Gmail
     should "Reply to all construct should be easy and call getProfile if delivered_to is not set" do
       m = Gmail::Message.new test_to_reply_message2
       reply_message = Gmail::Message.new test_reply_message
-      @mock.expects(:execute).with(api_method: Gmail.service.users.to_h['gmail.users.getProfile'],parameters: {userId: "me"} , headers: {'Content-Type' => 'application/json'}).once.returns(test_response({emailAddress: "julie@juliedesk.com"}))
+      @mock.expects(:get_user_profile).with( "me" ).once.returns(test_response({emailAddress: "julie@juliedesk.com"}))
       new_m = m.reply_all_with reply_message
       expected_msg = Gmail::Message.new test_replied_message
 
@@ -322,7 +324,8 @@ module Gmail
     should "forward construct should be easy" do
       m = Gmail::Message.new test_to_reply_message
       forward_message = Gmail::Message.new(test_forward_message)
-      @mock.expects(:execute).never
+      #TODO Make a better catchall test
+      @mock.expects(:get_user_message).never
       new_m = m.forward_with forward_message
       expected_msg = Gmail::Message.new test_forwarded_message
       # to be completed to be fully tested
@@ -350,8 +353,8 @@ module Gmail
     should "Insert call should be easy" do
       m = Gmail::Message.new test_message
       m.raw = m.raw
-      @mock.expects(:execute).with(api_method: Gmail.service.users.messages.insert, parameters: {userId: "me"}, body_object:{raw: m.raw, labelIds: test_message[:labelIds], threadId: test_message[:threadId]} , headers: {'Content-Type' => 'application/json'} ).twice.returns(test_response(test_message))
-      @mock.expects(:execute).with(api_method: Gmail.service.users.messages.get, parameters: {userId: "me", id: test_message[:id]}, headers: {'Content-Type' => 'application/json'}).twice.returns(test_response(test_message))
+      @mock.expects(:insert_user_message).with("me", {raw: m.raw, labelIds: test_message[:labelIds], threadId: test_message[:threadId]}  ).twice.returns(test_response(test_message))
+      @mock.expects(:get_user_message).with("me", test_message[:id]).twice.returns(test_response(test_message))
 
 
       new_m = m.insert
