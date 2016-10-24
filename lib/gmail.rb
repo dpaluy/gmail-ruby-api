@@ -27,10 +27,11 @@ module Gmail
   class << self
     attr_accessor :auth_method, :client_id, :client_secret, 
       :refresh_token, :auth_scopes, :email_account
-      #, :application_name, :application_version not required
+      #:application_name, :application_version not required
     attr_reader :service, :client, :mailbox_email
     def new hash
-      [:auth_method, :client_id, :client_secret, :refresh_token, :auth_scopes, :email_account, :application_name, :application_version].each do |accessor|
+      #[:auth_method, :client_id, :client_secret, :refresh_token, :auth_scopes, :email_account, :application_name, :application_version].each do |accessor|
+      [:auth_method, :client_id, :client_secret, :refresh_token, :auth_scopes, :email_account].each do |accessor|
         Gmail.send("#{accessor}=", hash[accessor.to_s])
       end
     end
@@ -45,7 +46,7 @@ module Gmail
   # rescue
 
   # end
-  
+
   def self.request(method, params={}, body={}, auth_method=@auth_method)
   
     params[:user_id] ||= "me"
