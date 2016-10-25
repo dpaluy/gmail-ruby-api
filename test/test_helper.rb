@@ -4,10 +4,7 @@ require 'mocha/setup'
 require 'stringio'
 require 'shoulda'
 require File.expand_path('../test_data', __FILE__)
-def default_locale
-  @default_locale ||= "en"
-  @locale = @default_locale
-end
+
 # monkeypatch request methods
 module Gmail
   @client = nil
