@@ -1,10 +1,14 @@
 module Gmail
   class Label < APIResource
-    include Base::List
+    # include Base::List
     include Base::Create
     include Base::Delete
     include Base::Get
     include Base::Update
+    
+    def all(filters={}, opts={})
+      response = Gmail.new_request("list_user_#{class_name.downcase}s",{userId:"me",variables:[]},filters)
+    end
 
     def save
       update(to_hash)
@@ -25,8 +29,8 @@ module Gmail
     end
 
     def messages filters={}
-      filters = {labelIds: [id]}.merge(filters)
-      filters[:labelIds] = filters[:labelIds] | [id]
+      filters = {label_ids: [id]}.merge(filters)
+      filters[:label_ids] = filters[:label_ids] | [id]
       Message.all(filters)
     end
 
@@ -34,18 +38,18 @@ module Gmail
       if messagesUnread == 0
         []
       else
-        Message.all({labelIds: [id, "UNREAD"]})
+        Message.all({label_ids: [id, "UNREAD"]})
       end
     end
 
     def threads filters={}
-      filters = {labelIds: [id]}.merge(filters)
-      filters[:labelIds] = filters[:labelIds] | [id]
+      filters = {label_ids: [id]}.merge(filters)
+      filters[:label_ids] = filters[:label_ids] | [id]
       Thread.all(filters)
     end
 
     def unread_threads
-      Thread.all({labelIds: [id, "UNREAD"]})
+      Thread.all({label_ids: [id, "UNREAD"]})
     end
 
   end

@@ -49,7 +49,7 @@ module Gmail
     end
 
     should "message should be deletable" do
-      @mock.expects(:delete_user_message).with("me", test_message[:id]).once.returns(test_response(""))
+      @mock.expects(:delete_user_message).with("me", test_message[:id]).once.returns(test_response(nil))
       t = Gmail::Message.new(test_message)
       r = t.delete
       assert r

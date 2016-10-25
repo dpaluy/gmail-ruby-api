@@ -15,12 +15,17 @@ module Gmail
     #   response = Gmail.client.get_user_message("me", id)
     #   Util.convert_to_gmail_object(response, class_name.downcase)
     # end
-    def get_batch(mailIds)
+    def self.get_batch(mailIds)
       mails = []
+      if Gmail.client.nil?
+        Gmail.check_connection
+      end
       Gmail.client.batch do |client|
-        ["157f6c65dd14d90e", "157f6c65c452ff43"].each do |id|
-          cl.get_user_message("me", id) do |res, err|  
-            mails << Util.convert_to_gmail_object(parse(res.to_json))
+        mailIds.each do |id|
+          client.get_user_message("me", id) do |res, err|  
+            result = Hashie::Mash.new
+            result.body = res.to_json
+            mails << Gmail::Util.convert_to_gmail_object(Gmail.parse(result), "message")
           end
         end
       end

@@ -1,6 +1,7 @@
 require 'mail'
 require 'hashie'
 require 'hooks'
+#require 'mocha'
 #require 'google/api_client'
 require 'gmail/gmail_object'
 require 'gmail/api_resource'
@@ -85,32 +86,29 @@ module Gmail
   def self.new_request(method, params={},body={}, auth_method = @auth_method)
     params[:userId] ||= "me"
     variables = [params[:userId], *params[:variables]]
-    auth_method ||= "web application"
-    unless auth_method.nil?
-      case auth_method
-        when "web_application" 
-          if @client.nil?
-            self.connect
-          end
-        when "service_account"
-          if @client.nil?
-            self.service_account_connect
-          elsif self.client.authorization.principal != @email_account
-            self.service_account_connect
-          end
-      end
-      #Pretend it's a response until I work out a better way of doing it. 
-      response = Hashie::Mash.new
+    
+    check_connection
+    #Pretend it's a response until I work out a better way of doing it. 
+    response = Hashie::Mash.new
 
-      if body.empty?
-        response.body = @client.send(method,*variables).to_json
-      else
-        response.body = @client.send(method,*variables, body).to_json
-      end
-      parse(response)
+    if body.empty?
+      r = @client.send(method,*variables)
     else
-      raise "No Auth Method defined"
+      r = @client.send(method,*variables, body)
     end
+    #This is a brutal hack, but gets the job done to keep everything consistent.
+    
+    
+    if r.nil?
+      response.body = nil
+    elsif r.respond_to? :to_json
+      response.body = r.to_json
+    else
+      response.body = r
+    end
+    
+    parse(response)
+    
   end
 
   def self.mailbox_email
@@ -118,6 +116,20 @@ module Gmail
     @mailbox_email ||= self.new_request("get_user_profile", {variables:["me"]}).email_address
   end
 
+  def self.check_connection
+    if auth_method == "service_account"     
+      if @client.nil?
+        self.service_account_connect
+      elsif self.client.authorization.principal != @email_account
+        self.service_account_connect
+      end      
+    else
+      if @client.nil?
+        self.connect
+      end
+    end
+    @client
+  end
 
 
   def self.connect(client_id=@client_id, client_secret=@client_secret, refresh_token=@refresh_token)
@@ -138,9 +150,7 @@ module Gmail
       client_secret: client_secret,
       refresh_token: refresh_token
       )
-
     @client = Google::Apis::GmailV1::GmailService.new
-      
     @client.authorization = authorization
     # We don't currently specify what the account is... this could beb problematic as it's a useful piece of information.
     # @client.authorization.principal
@@ -148,7 +158,7 @@ module Gmail
     @client.authorization.principal = @client.get_user_profile("me").email_address
     
     @service = @client
-    @auth_method = "web application"
+    @auth_method = "web_application"
   end
 
   def self.service_account_connect(
@@ -163,30 +173,27 @@ module Gmail
       :issuer => client_id,
       :signing_key => OpenSSL::PKey::RSA.new(client_secret, nil),
     )
+    @client = Google::Apis::GmailV1::GmailService.new
+    @client.authorization = authorization
     @client.authorization.principal = email_account
     authorization.fetch_access_token!
     #authorization
-
-    
     @service = @client
-    @auth_method = "service account"
+    # @auth_method = "service_account"
   end
 
   def self.parse(response)
     begin
-      if response.body.empty?
+      if response.body.nil? || response.body.empty?
         return response.body
-
-      # if response.empty?
-      #   return response
       else
-        # response = JSON.parse(response)
         response = JSON.parse(response.body)
       end
 
     rescue JSON::ParserError => e
       #raise "error code: #{response.error},body: #{response})"
-      raise "Error: #{e} - #{response}"
+      # raise "Error: #{e} - #{response}"
+      response = response
     end
 
     r = Gmail::Util.symbolize_names(response)

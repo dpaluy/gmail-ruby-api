@@ -4,12 +4,13 @@ module Gmail
     def test_response(body, code=200)
       # When an exception is raised, restclient clobbers method_missing.  Hence we
       # can't just use the stubs interface.
-      body = JSON.generate(body) if !(body.kind_of? String)
-      m = mock
-      m.instance_variable_set('@gmail_values', { :body => body, :code => code })
-      def m.body; @gmail_values[:body]; end
-      def m.code; @gmail_values[:code]; end
+      #body = JSON.generate(body) if !(body.kind_of? String)
+      # m = mock
+      # m.instance_variable_set('@gmail_values', { :body => body, :code => code })
+      # def m.body; @gmail_values[:body]; end
+      # def m.code; @gmail_values[:code]; end
       m = body
+
     end
 
     def test_draft(params={})
