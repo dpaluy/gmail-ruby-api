@@ -1,6 +1,6 @@
 module Gmail
   class Label < APIResource
-    # include Base::List
+    include Base::List
     include Base::Create
     include Base::Delete
     include Base::Get

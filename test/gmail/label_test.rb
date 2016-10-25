@@ -45,7 +45,7 @@ module Gmail
 
       should 'Access list of unread Messages' do
         label = Gmail::Label.new test_label
-        @mock.expects(:list_user_messages).with("me", labelIds: [test_label[:id], "UNREAD"]).once.returns(test_response(test_message_list))
+        @mock.expects(:list_user_messages).with("me", label_ids: [test_label[:id], "UNREAD"]).once.returns(test_response(test_message_list))
         list = label.unread_messages
         assert list.kind_of? Array
         assert list[0].kind_of? Gmail::Message
@@ -89,7 +89,8 @@ module Gmail
 
 
     should "Label should be deletable" do
-      @mock.expects(:delete_user_label).with("me", test_label[:id]).once.returns(test_response(""))
+      @mock.expects(:delete_user_label).with("me", test_label[:id]).once.returns(test_response(nil))
+      
       d = Gmail::Label.new(test_label)
       r = d.delete
       assert r

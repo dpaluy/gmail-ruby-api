@@ -40,7 +40,7 @@ module Gmail
 
 
     should "drafts should be deletable" do
-      @mock.expects(:delete_user_draft).with("me", test_draft[:id]).once.returns(test_response(""))
+      @mock.expects(:delete_user_draft).with("me", test_draft[:id]).once.returns(test_response(nil))
       d = Gmail::Draft.new(test_draft)
       r = d.delete
       assert r

@@ -113,7 +113,7 @@ module Gmail
 
   def self.mailbox_email
     #@mailbox_email ||= self.request(@service.users.to_h['gmail.users.getProfile'])[:emailAddress]
-    @mailbox_email ||= self.new_request("get_user_profile", {variables:["me"]}).email_address
+    @mailbox_email ||= self.new_request("get_user_profile", {userId:"me", variables:[]})[:email_address]
   end
 
   def self.check_connection

@@ -27,7 +27,7 @@ Gem::Specification.new do |s|
   s.add_dependency('googleauth', ['>= 0.5.0', '< 1.0.0'])
   s.add_dependency "hooks", ">=0.4.0"
   s.add_dependency "hashie", ">=3.3.2"
-  s.add_dependency "stringex"
+  s.add_dependency 'stringex', '~> 1.0'
   s.add_dependency('mocha', '~> 1.0.0')
   # development dependencies
   s.add_development_dependency "rake"

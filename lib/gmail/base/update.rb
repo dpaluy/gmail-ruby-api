@@ -18,7 +18,7 @@ module Gmail
           d = self.class.create(body)
         else
           #response = Gmail. request(self.class.base_method.send("update"),{id: id}, body)
-          response = Gmail.new_request("update_user_#{class_name.downcase}",{userId:"me", variables:[id]},body)
+          response = Gmail.new_request("update_user_#{self.class.class_name.downcase}",{userId:"me", variables:[id]},body)
           d = Util.convert_to_gmail_object(response, self.class.class_name.downcase)
         end
         d

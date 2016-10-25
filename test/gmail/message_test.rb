@@ -206,7 +206,7 @@ module Gmail
       # raw generation change between two calls because date won't be the same...
       m.raw = m.raw
       ###
-      @mock.expects(:execute).with(api_method: Gmail.service.users.drafts.create, parameters: {userId: "me"}, body_object:{message: {raw: m.raw, threadId: test_message[:threadId], labelIds: test_message[:labelIds]}} ).once.returns(test_response(test_draft))
+      @mock.expects(:create_user_draft).with("me", {message: {raw: m.raw, threadId: test_message[:threadId], labelIds: test_message[:labelIds]}} ).once.returns(test_response(test_draft))
       d = m.create_draft
       assert_equal Gmail::Draft, d.class
 
@@ -216,7 +216,7 @@ module Gmail
 
       m = Gmail::Message.new test_message
       m.raw = m.raw
-      @mock.expects(:send_user_message).with("me",{raw: m.raw, labelIds: test_message[:labelIds], threadId: test_message[:threadId]} ).twice.returns(test_response(test_message))
+      @mock.expects(:send_user_message).with("me",{raw: m.raw, label_ids: test_message[:labelIds], thread_id: test_message[:threadId]} ).twice.returns(test_response(test_message))
 
       @mock.expects(:get_user_message).with("me", test_message[:id]).twice.returns(test_response(test_message))
 
@@ -303,7 +303,7 @@ module Gmail
     should "Reply to all construct should be easy and call getProfile if delivered_to is not set" do
       m = Gmail::Message.new test_to_reply_message2
       reply_message = Gmail::Message.new test_reply_message
-      @mock.expects(:get_user_profile).with( "me" ).once.returns(test_response({emailAddress: "julie@juliedesk.com"}))
+      @mock.expects(:get_user_profile).with( "me" ).once.returns(test_response({email_address: "julie@juliedesk.com"}))
       new_m = m.reply_all_with reply_message
       expected_msg = Gmail::Message.new test_replied_message
 
