@@ -45,26 +45,26 @@ module Gmail
 
     def deliver!
       #response = Gmail. request(self.class.base_method.to_h['gmail.users.messages.send'],{}, msg_parameters)
-      response = Gmail.new_request("send_user_message",{userId:"me", variables:[]}, Google::Apis::GmailV1::Message.new(raw:self.raw))
+      response = Gmail.new_request("send_user_message",{userId:"me", variables:[]}, Google::Apis::GmailV1::Message.new(raw:self.raw(base64:false)))
       @values = Message.get(response[:id]).values
       self
     end
 
     def deliver
       #response = Gmail. request(self.class.base_method.to_h['gmail.users.messages.send'],{}, msg_parameters)
-      response = Gmail.new_request("send_user_message",{userId:"me", variables:[ Google::Apis::GmailV1::Message.new(raw:self.raw)]},)
+      response = Gmail.new_request("send_user_message",{userId:"me", variables:[ Google::Apis::GmailV1::Message.new(raw:self.raw(base64:false))]},)
       Message.get(response[:id])
     end
 
     def insert
       #response = Gmail. request(self.class.base_method.insert,{}, msg_parameters)
-      response = Gmail.new_request("insert_user_message",{userId:"me", variables:[]}, Google::Apis::GmailV1::Message.new(raw:self.raw))
+      response = Gmail.new_request("insert_user_message",{userId:"me", variables:[]}, Google::Apis::GmailV1::Message.new(raw:self.raw(base64:false)))
       Message.get(response[:id])
     end
 
     def insert!
       #response = Gmail. request(self.class.base_method.insert,{}, msg_parameters)
-      response = Gmail.new_request("insert_user_message",{userId:"me", variables:[]}, Google::Apis::GmailV1::Message.new(raw:self.raw))
+      response = Gmail.new_request("insert_user_message",{userId:"me", variables:[]}, Google::Apis::GmailV1::Message.new(raw:self.raw(base64:false)))
       @values = Message.get(response[:id]).values
       self
     end
@@ -120,7 +120,7 @@ module Gmail
 
 
 
-    def raw # is not in private because the method is used in Draft
+    def raw(params={base64:true}) # is not in private because the method is used in Draft
       if super #check if raw is set to allow fully custom message to be sent
         super
       else
@@ -163,8 +163,11 @@ module Gmail
             end
           end
         end
-        #Base64.urlsafe_encode64 msg.to_s.sub("X-Bcc", "Bcc") #because Mail gem doesn't allow bcc headers...
-        msg.to_s.sub("X-Bcc", "Bcc") #because Mail gem doesn't allow bcc headers...
+        unless params[:base64] = false
+          Base64.urlsafe_encode64 msg.to_s.sub("X-Bcc", "Bcc") #because Mail gem doesn't allow bcc headers...
+        else
+          msg.to_s.sub("X-Bcc", "Bcc") #because Mail gem doesn't allow bcc headers...
+        end
       end
     end
 

@@ -23,7 +23,7 @@ module Gmail
     context "Access list of Messages from thread" do
       should "Access list of Messages" do
         thread = Gmail::Thread.new test_thread
-       # @mock.expects(:execute).with(api_method: Gmail.service.users.messages.list, parameters: {userId: "me", threadId: [test_thread[:id]]}, headers: {'Content-Type' => 'application/json'}).once.returns(test_response(test_message_list))
+       # @mock.expects(:execute).with(api_method: Gmail.service.users.messages.list, parameters: {userId: "me", threadId: [test_thread[:id]]), headers: {'Content-Type' => 'application/json'}).once.returns(test_response(test_message_list))
         list = thread.messages
         assert_equal Array, list.class
         assert_equal Gmail::Message, list[0].class
@@ -82,7 +82,7 @@ module Gmail
 
     context "Modifying Labels" do
       should "Thread should be starrable" do
-        @mock.expects(:modify_thread).with("me", test_thread[:id],{addLabelIds: ["STARRED"], removeLabelIds: []}).twice.returns(test_response(test_thread))
+        @mock.expects(:modify_thread).with("me", test_thread[:id],kind_of(Google::Apis::GmailV1::ModifyMessageRequest) ).twice.returns(test_response(test_thread))
         t = Gmail::Thread.new(test_thread)
         r = t.star
         assert_equal Gmail::Thread, r.class
@@ -95,7 +95,7 @@ module Gmail
       end
 
       should "Thread should be unstarrable" do
-        @mock.expects(:modify_thread).with("me", test_thread[:id], {addLabelIds: [], removeLabelIds: ["STARRED"]} ).twice.returns(test_response(test_thread))
+        @mock.expects(:modify_thread).with("me", test_thread[:id], kind_of(Google::Apis::GmailV1::ModifyMessageRequest) ).twice.returns(test_response(test_thread))
         t = Gmail::Thread.new(test_thread)
         r = t.unstar
         assert_equal Gmail::Thread, r.class
@@ -108,7 +108,7 @@ module Gmail
       end
 
       should "Thread should be archivable" do
-        @mock.expects(:modify_thread).with("me", test_thread[:id], {addLabelIds: [], removeLabelIds: ["INBOX"]}).twice.returns(test_response(test_thread))
+        @mock.expects(:modify_thread).with("me", test_thread[:id], kind_of(Google::Apis::GmailV1::ModifyMessageRequest) ).twice.returns(test_response(test_thread))
         t = Gmail::Thread.new(test_thread)
         r = t.archive
         assert_equal Gmail::Thread, r.class
@@ -120,7 +120,7 @@ module Gmail
       end
 
       should "Thread should be unarchivable" do
-        @mock.expects(:modify_thread).with("me", test_thread[:id], {addLabelIds: ["INBOX"], removeLabelIds: []} ).twice.returns(test_response(test_thread))
+        @mock.expects(:modify_thread).with("me", test_thread[:id], kind_of(Google::Apis::GmailV1::ModifyMessageRequest) ).twice.returns(test_response(test_thread))
         t = Gmail::Thread.new(test_thread)
         r = t.unarchive
         assert_equal Gmail::Thread, r.class
@@ -132,7 +132,8 @@ module Gmail
       end
 
       should "Thread should be markable as read" do
-        @mock.expects(:modify_thread).with("me", test_thread[:id], {addLabelIds: [], removeLabelIds: ["UNREAD"]}).twice.returns(test_response(test_thread))
+        #@mock.expects(:modify_thread).with("me", test_thread[:id], Google::Apis::GmailV1::ModifyMessageRequest.new(add_label_ids: [], remove_label_ids: ["UNREAD"])).twice.returns(test_response(test_thread))
+        @mock.expects(:modify_thread).with("me", test_thread[:id], kind_of(Google::Apis::GmailV1::ModifyMessageRequest) ).twice.returns(test_response(test_thread))
         t = Gmail::Thread.new(test_thread)
         r = t.mark_as_read
         assert_equal Gmail::Thread, r.class
@@ -144,7 +145,7 @@ module Gmail
       end
 
       should "Thread should be markable as unread" do
-        @mock.expects(:modify_thread).with("me", test_thread[:id], {addLabelIds: ["UNREAD"], removeLabelIds: []}).twice.returns(test_response(test_thread))
+        @mock.expects(:modify_thread).with("me", test_thread[:id], kind_of(Google::Apis::GmailV1::ModifyMessageRequest) ).twice.returns(test_response(test_thread))
         t = Gmail::Thread.new(test_thread)
         r = t.mark_as_unread
         assert_equal Gmail::Thread, r.class
@@ -157,7 +158,7 @@ module Gmail
 
 
       should "Thread label should be modifiable as wish" do
-        @mock.expects(:modify_thread).with("me", test_thread[:id], {addLabelIds: ["UNREAD", "SOME COOL LABEL"], removeLabelIds: ["INBOX", "SOME NOT COOL LABEL"]}).twice.returns(test_response(test_thread))
+        @mock.expects(:modify_thread).with("me", test_thread[:id], kind_of(Google::Apis::GmailV1::ModifyMessageRequest) ).twice.returns(test_response(test_thread))
         t = Gmail::Thread.new(test_thread)
         r = t.modify ["UNREAD", "SOME COOL LABEL"], ["INBOX", "SOME NOT COOL LABEL"]
         assert_equal Gmail::Thread, r.class
