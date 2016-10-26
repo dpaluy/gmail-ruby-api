@@ -6,16 +6,23 @@ module Gmail
     include Base::Get
     include Base::Update
     
+    # def self.create(body, opts={})
+    #   #response = Gmail. request(base_method.send("create"), {}, body)
+    #   #body = Google::Apis::GmailV1::Label.new()
+    #   response = Gmail.new_request("create_user_#{class_name.downcase}",{userId:"me", variables:[]},body)
+    #   Util.convert_to_gmail_object(response, class_name.downcase)
+    # end
+    
     def all(filters={}, opts={})
       response = Gmail.new_request("list_user_#{class_name.downcase}s",{userId:"me",variables:[]},filters)
     end
 
     def save
-      update(to_hash)
+      update!(Google::Apis::GmailV1::Label.from_json(self.to_json))
     end
 
     def save!
-      update!(to_hash)
+      update!(Google::Apis::GmailV1::Label.from_json(self.to_json))
     end
 
     def self.boxes
