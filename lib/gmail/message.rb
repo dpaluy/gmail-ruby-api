@@ -37,31 +37,34 @@ module Gmail
     end
 
     def create_draft
-      Draft.create(message: msg_parameters)
+      Base64.urlsafe_encode64(self.raw)
+
+      message_object = Google::Apis::GmailV1::Message.from_json(self.to_json)
+      Draft.create(Google::Apis::GmailV1::Draft.new(message_object))
     end
 
     def deliver!
       #response = Gmail. request(self.class.base_method.to_h['gmail.users.messages.send'],{}, msg_parameters)
-      response = Gmail.new_request("send_user_message",{userId:"me", variables:[self]})
+      response = Gmail.new_request("send_user_message",{userId:"me", variables:[]}, Google::Apis::GmailV1::Message.new(raw:self.raw))
       @values = Message.get(response[:id]).values
       self
     end
 
     def deliver
       #response = Gmail. request(self.class.base_method.to_h['gmail.users.messages.send'],{}, msg_parameters)
-      response = Gmail.new_request("send_user_message",{userId:"me", variables:[]},self)
+      response = Gmail.new_request("send_user_message",{userId:"me", variables:[ Google::Apis::GmailV1::Message.new(raw:self.raw)]},)
       Message.get(response[:id])
     end
 
     def insert
       #response = Gmail. request(self.class.base_method.insert,{}, msg_parameters)
-      response = Gmail.new_request("insert_user_message",{userId:"me", variables:[]},self)
+      response = Gmail.new_request("insert_user_message",{userId:"me", variables:[]}, Google::Apis::GmailV1::Message.new(raw:self.raw))
       Message.get(response[:id])
     end
 
     def insert!
       #response = Gmail. request(self.class.base_method.insert,{}, msg_parameters)
-      response = Gmail.new_request("insert_user_message",{userId:"me", variables:[]},self)
+      response = Gmail.new_request("insert_user_message",{userId:"me", variables:[]}, Google::Apis::GmailV1::Message.new(raw:self.raw))
       @values = Message.get(response[:id]).values
       self
     end
@@ -160,7 +163,8 @@ module Gmail
             end
           end
         end
-        Base64.urlsafe_encode64 msg.to_s.sub("X-Bcc", "Bcc") #because Mail gem doesn't allow bcc headers...
+        #Base64.urlsafe_encode64 msg.to_s.sub("X-Bcc", "Bcc") #because Mail gem doesn't allow bcc headers...
+        msg.to_s.sub("X-Bcc", "Bcc") #because Mail gem doesn't allow bcc headers...
       end
     end
 
