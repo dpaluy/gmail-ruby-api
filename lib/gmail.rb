@@ -91,7 +91,7 @@ module Gmail
     #Pretend it's a response until I work out a better way of doing it. 
     response = Hashie::Mash.new
 
-    if body.empty?
+    if body == {}
       r = @client.send(method,*variables)
     else
       r = @client.send(method,*variables, body)
