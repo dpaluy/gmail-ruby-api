@@ -18,7 +18,7 @@ module Gmail
     end
 
     def save
-      update!(Google::Apis::GmailV1::Label.from_json(self.to_json))
+      update(Google::Apis::GmailV1::Label.from_json(self.to_json))
     end
 
     def save!

@@ -103,7 +103,7 @@ module Gmail
       assert_equal "show", label.messageListVisibility
 
 
-      @mock.expects(:update_user_label).with("me", test_label[:id], test_label(:messageListVisibility=>"hide")).twice.returns(test_response(test_label(:messageListVisibility=>"hide")))
+      @mock.expects(:update_user_label).with("me", test_label[:id], kind_of(Google::Apis::GmailV1::Label) ).twice.returns(test_response(test_label(:messageListVisibility=>"hide")))
 
       label.messageListVisibility = "hide"
       new_l = label.save

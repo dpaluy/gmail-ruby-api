@@ -210,7 +210,7 @@ module Gmail
       # raw generation change between two calls because date won't be the same...
       m.raw = m.raw
       ###
-      @mock.expects(:create_user_draft).with("me", {message: {raw: m.raw, threadId: test_message[:threadId], labelIds: test_message[:labelIds]}} ).once.returns(test_response(test_draft))
+      @mock.expects(:create_user_draft).with("me", kind_of(Google::Apis::GmailV1::Draft) ).once.returns(test_response(test_draft))
       d = m.create_draft
       assert_equal Gmail::Draft, d.class
 

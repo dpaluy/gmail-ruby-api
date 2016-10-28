@@ -37,10 +37,10 @@ module Gmail
     end
 
     def create_draft
-      Base64.urlsafe_encode64(self.raw)
+      #Base64.urlsafe_encode64(self.raw)
 
-      message_object = Google::Apis::GmailV1::Message.from_json(self.to_json)
-      Draft.create(Google::Apis::GmailV1::Draft.new(message_object))
+      message_object = Google::Apis::GmailV1::Message.new(raw:self.raw(base64:false))
+      Draft.create(Google::Apis::GmailV1::Draft.new(message:message_object))
     end
 
     def deliver!
@@ -163,7 +163,8 @@ module Gmail
             end
           end
         end
-        unless params[:base64] = false
+        puts params[:base64]
+        unless params[:base64] == false
           Base64.urlsafe_encode64 msg.to_s.sub("X-Bcc", "Bcc") #because Mail gem doesn't allow bcc headers...
         else
           msg.to_s.sub("X-Bcc", "Bcc") #because Mail gem doesn't allow bcc headers...

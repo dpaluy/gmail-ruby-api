@@ -60,7 +60,7 @@ module Gmail
 
       draft_hash[:message].merge!({labelIds: ["INBOX"]})
 
-      @mock.expects(:update_user_draft).with("me", test_draft[:id], {message: {raw: d.message.raw, thread_id: test_draft[:message][:threadId], label_ids: ["INBOX"]}}).twice.returns(test_response(draft_hash))
+      @mock.expects(:update_user_draft).with("me", test_draft[:id], kind_of(Google::Apis::GmailV1::Draft)).twice.returns(test_response(draft_hash))
 
 
       d.message.labelIds = ["INBOX"]
@@ -79,7 +79,7 @@ module Gmail
       raw = d.message.raw
       d.message.raw = raw
       ###
-      @mock.expects(:create_user_draft).with("me", {message: {raw: d.message.raw, threadId: draft_hash[:message][:threadId], labelIds: draft_hash[:message][:labelIds]}}).once.returns(test_response(test_draft))
+      @mock.expects(:create_user_draft).with("me", kind_of(Google::Apis::GmailV1::Draft)).once.returns(test_response(test_draft))
       created_d = d.save!
       assert_equal Gmail::Draft, created_d.class
       assert_equal test_draft[:id], d.id
@@ -87,7 +87,7 @@ module Gmail
 
 
     should "Draft should be sendable and return a Message" do
-      @mock.expects(:send_user_draft).with("me", {id: test_draft[:id]} ).once.returns(test_response(test_message))
+      @mock.expects(:send_user_draft).with("me", kind_of(Google::Apis::GmailV1::Draft) ).once.returns(test_response(test_message))
       @mock.expects(:get_user_message).with("me",test_message[:id]).once.returns(test_response(test_message))
 
       d = Gmail::Draft.new test_draft
