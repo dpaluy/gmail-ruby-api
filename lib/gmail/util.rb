@@ -25,7 +25,7 @@ module Gmail
       end
     end
 
-    def self.convert_back_to_google_api_object
+    def self.convert_to_google_api_object
       #This is going to need to happen
     end
 
