@@ -8,7 +8,7 @@ module Gmail
     include Base::Trash
 
     require "stringex"
-
+    
     after_initialize :set_basics
 
     # def self.get(id)
