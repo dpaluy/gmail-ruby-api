@@ -4,6 +4,10 @@ A Ruby interface to Gmail API: Search,
 read and send multipart emails, archive, mark as read/unread, delete emails, 
 and manage labels. Everything goes through Gmail API (and not through IMAP or SMTP protocols)
 
+This has been updated from jhk673/gmail-ruby-api to provide compatibility with versions of the google api ruby client after versions 0.8x.
+
+Tested (though further test help happily appreciated with a PR) and working on 0.9 (previous to 0.10.0 tags) and 0.10 versions. 
+
 [![Gem Version](https://badge.fury.io/rb/gmail-api-ruby.svg)](http://badge.fury.io/rb/gmail-api-ruby)
 [![Build Status](https://travis-ci.org/jhk753/gmail-ruby-api.svg)](https://travis-ci.org/jhk753/gmail-ruby-api)
 [![Dependency Status](https://gemnasium.com/jhk753/gmail-ruby-api.svg)](https://gemnasium.com/jhk753/gmail-ruby-api)
