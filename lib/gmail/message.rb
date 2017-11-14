@@ -140,13 +140,13 @@ module Gmail
           bodypart = Mail::Part.new
           if text
             bodypart.text_part = Mail::Part.new do |p|
-              content_type 'text/plain; charset=UTF-8'
+              p.content_type 'text/plain; charset=UTF-8'
               p.body s.text
             end
           end
           if html
             bodypart.html_part = Mail::Part.new do |p|
-              content_type 'text/html; charset=UTF-8'
+              p.content_type 'text/html; charset=UTF-8'
               p.body s.html
             end
           end
