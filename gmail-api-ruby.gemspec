@@ -25,9 +25,9 @@ Gem::Specification.new do |s|
   s.add_dependency "activesupport", "~> 4"
   s.add_dependency('google-api-client', ['>= 0.10.0', '< 0.11.0'])
   s.add_dependency('googleauth', ['>= 0.5.0', '< 1.0.0'])
-  s.add_dependency "hooks", ">=0.4.0"
-  s.add_dependency "hashie", ">=3.3.2"
-  s.add_dependency 'stringex', '~> 1.0'
+  s.add_dependency "hooks", ">= 0.4.0"
+  s.add_dependency "hashie", ">= 3.3.2"
+  s.add_dependency 'stringex', '>= 1.0'
 
   s.add_development_dependency "rake"
   s.add_development_dependency "test-unit"
